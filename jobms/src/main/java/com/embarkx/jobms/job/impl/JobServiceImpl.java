@@ -6,6 +6,7 @@ import com.embarkx.jobms.job.JobRepository;
 import com.embarkx.jobms.job.JobService;
 import com.embarkx.jobms.job.dto.JobWithCompanyDTO;
 import com.embarkx.jobms.job.external.Company;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,6 +19,9 @@ import java.util.stream.Collectors;
 public class JobServiceImpl implements JobService {
 //    private List<Job> jobs = new ArrayList<>();
     JobRepository jobRepository;    // instead of using a list, we are using a repository to store the jobs
+
+    @Autowired  // this tells springboot to autowire the restTemplate bean. this tells spring boot to provide us the instance of RestTemplate at runtime.
+    RestTemplate restTemplate;
 
     // since jobRepository is a bean that is managed by springboot, so this constructor can autowire it in the constructor
     public JobServiceImpl(JobRepository jobRepository) {
@@ -35,8 +39,8 @@ public class JobServiceImpl implements JobService {
     private JobWithCompanyDTO convertToDto(Job job){
         JobWithCompanyDTO jobWithCompanyDTO = new JobWithCompanyDTO();
         jobWithCompanyDTO.setJob(job);
-        RestTemplate restTemplate = new RestTemplate();
-        Company company = restTemplate.getForObject("http://localhost:8081/companies/"+job.getCompanyId(), Company.class);
+//        RestTemplate restTemplate = new RestTemplate();   // this is not needed as we have autowired the restTemplate
+        Company company = restTemplate.getForObject("http://COMPANY-SERVICE:8081/companies/"+job.getCompanyId(), Company.class);
         jobWithCompanyDTO.setCompany(company);
         return jobWithCompanyDTO;
     }
@@ -47,8 +51,10 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public Job getJobById(Long id) {
-        return jobRepository.findById(id).orElse(null);
+    public JobWithCompanyDTO getJobById(Long id) {
+        Job job = jobRepository.findById(id).orElse(null);
+        return convertToDto(job);
+
     }
 
     @Override
