@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+data:
+  POSTGRES_DB: momo
+  POSTGRES_USER: momo
+  POSTGRES_PASSWORD: momo
